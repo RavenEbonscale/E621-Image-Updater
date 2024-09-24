@@ -59,17 +59,17 @@ namespace E621ImageDownloader.Database
 
             await connection.OpenAsync();
 
-            string sql = "Select tag  From tags";
+            string sql = "Select tag  From tags;";
 
             SqliteCommand cmd = new SqliteCommand(sql,connection);
 
 
 
             using (var reader = await cmd.ExecuteReaderAsync()) {
-                while (reader.Read()) {
+                while (await reader.ReadAsync()) {
 
 
-                    string name = reader.GetString(0);
+                    list.Add(reader.GetString(0));
 
                     
                     
@@ -85,7 +85,59 @@ namespace E621ImageDownloader.Database
 
         }
 
+        public async Task<List<int>> Readids()
+        {
+            List<int> list = new List<int>();
+            SqliteConnection connection = new($"Data Source={_connectionoath}");
 
+            await connection.OpenAsync();
+
+            string sql = "Select id  From ids;";
+
+            SqliteCommand cmd = new SqliteCommand(sql, connection);
+
+
+
+            using (var reader = await cmd.ExecuteReaderAsync())
+            {
+                while (await reader.ReadAsync())
+                {
+
+
+                    list.Add(reader.GetInt32(0));
+
+
+
+
+                }
+            }
+
+
+            return list;
+
+        }
+/// <summary>
+/// Update The SqlLite Database
+/// </summary>
+/// <param name="tags">The Tag that the post id can be found Under</param>
+/// <param name="postid">The Post id</param>
+/// <returns></returns>
+        public async Task Update(string tags , int postid)
+        {
+            List<string> list = new List<string>();
+            SqliteConnection connection = new($"Data Source={_connectionoath}");
+
+            await connection.OpenAsync();
+
+            string sql = $"Insert Into ids (tag,id) Values ('{tags}',{postid});";
+
+            SqliteCommand cmd = new SqliteCommand(sql, connection);
+
+            await cmd.ExecuteNonQueryAsync();
+
+            await connection.CloseAsync();
+            await connection.DisposeAsync();
+        }
 
     }
     
